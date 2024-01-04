@@ -1,5 +1,26 @@
 ![](img/logo-long-chatchat-trans-v2.png)
 
+[Langchain-Chatchat + 阿里通义千问Qwen 保姆级教程  次世代知识管理解决方案 - 知乎](https://zhuanlan.zhihu.com/p/651189680)
+
+[Home · chatchat-spaceLangchain-Chatchat Wiki](https://github.com/chatchat-space/Langchain-Chatchat/wiki/)
+
+最轻量部署方案   
+
+```bash
+# 安装依赖
+pip install -r requirements_lite.txt
+pip install -r requirements_api.txt
+pip install -r requirements_webui.txt  
+
+# 启动
+python init_database.py --recreate-vs
+python startup.py -a --lite
+python startup.py --webui
+```
+
+http://127.0.0.1:8501 
+
+
 
 🌍 [READ THIS IN ENGLISH](README_en.md)
 
