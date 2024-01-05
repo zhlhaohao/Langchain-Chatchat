@@ -6,7 +6,7 @@ import os
 MODEL_ROOT_PATH = ""
 
 # 选用的 Embedding 名称
-EMBEDDING_MODEL = "bge-large-zh"
+EMBEDDING_MODEL = "text2vec"
 
 # Embedding 模型运行设备。设为"auto"会自动检测，也可手动设定为"cuda","mps","cpu"其中之一。
 EMBEDDING_DEVICE = "auto"
@@ -28,7 +28,7 @@ EMBEDDING_MODEL_OUTPUT_PATH = "output"
 
 # chatglm3-6b输出角色标签<|user|>及自问自答的问题详见项目wiki->常见问题->Q20.
 
-LLM_MODELS = ["openai-api"]  # "Qwen-1_8B-Chat",
+LLM_MODELS = ["qwen-api", "openai-api"]  # "Qwen-1_8B-Chat",
 
 # AgentLM模型的名称 (可以不指定，指定之后就锁定进入Agent之后的Chain的模型，不指定就是LLM_MODELS[0])
 Agent_MODEL = None
@@ -94,7 +94,7 @@ ONLINE_LLM_MODEL = {
     # 阿里云通义千问 API，文档参考 https://help.aliyun.com/zh/dashscope/developer-reference/api-details
     "qwen-api": {
         "version": "qwen-turbo",  # 可选包括 "qwen-turbo", "qwen-plus"
-        "api_key": "",  # 请在阿里云控制台模型服务灵积API-KEY管理页面创建
+        "api_key": "sk-db2ad92210a348fd884c3b94655095c5",  # 请在阿里云控制台模型服务灵积API-KEY管理页面创建
         "provider": "QwenWorker",
         "embed_model": "text-embedding-v1",  # embedding 模型名称
     },
@@ -152,7 +152,7 @@ MODEL_PATH = {
         "piccolo-base-zh": "sensenova/piccolo-base-zh",
         "piccolo-large-zh": "sensenova/piccolo-large-zh",
         "nlp_gte_sentence-embedding_chinese-large": "damo/nlp_gte_sentence-embedding_chinese-large",
-        "text-embedding-ada-002": "your OPENAI_API_KEY",
+        "text-embedding-ada-002": "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",
     },
     "llm_model": {
         # 以下部分模型并未完全测试，仅根据fastchat和vllm模型的模型列表推定支持

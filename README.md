@@ -7,7 +7,8 @@
 最轻量部署方案   
 
 ```bash
-# 安装依赖
+# 安装依赖,最好是python 3.10
+conda install jq
 pip install -r requirements_lite.txt
 pip install -r requirements_api.txt
 pip install -r requirements_webui.txt  
@@ -15,7 +16,7 @@ pip install -r requirements_webui.txt
 # 启动
 python init_database.py --recreate-vs
 python startup.py -a --lite
-python startup.py --webui
+# python startup.py --webui
 ```
 
 http://127.0.0.1:8501 
