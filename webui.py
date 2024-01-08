@@ -19,12 +19,13 @@ if __name__ == "__main__":
         os.path.join("img", "chatchat_icon_blue_square_v2.png"),
         initial_sidebar_state="expanded",
         menu_items={
-            'Get Help': 'https://github.com/chatchat-space/Langchain-Chatchat',
-            'Report a bug': "https://github.com/chatchat-space/Langchain-Chatchat/issues",
-            'About': f"""欢迎使用 Langchain-Chatchat WebUI {VERSION}！"""
-        }
+            "Get Help": "https://github.com/chatchat-space/Langchain-Chatchat",
+            "Report a bug": "https://github.com/chatchat-space/Langchain-Chatchat/issues",
+            "About": f"""欢迎使用 Langchain-Chatchat WebUI {VERSION}！""",
+        },
     )
 
+    # 有两个子页面
     pages = {
         "对话": {
             "icon": "chat",
@@ -38,11 +39,8 @@ if __name__ == "__main__":
 
     with st.sidebar:
         st.image(
-            os.path.join(
-                "img",
-                "logo-long-chatchat-trans-v2.png"
-            ),
-            use_column_width=True
+            os.path.join("img", "logo-long-chatchat-trans-v2.png"),
+            use_column_width=True,
         )
         st.caption(
             f"""<p align="right">当前版本：{VERSION}</p>""",
@@ -60,5 +58,7 @@ if __name__ == "__main__":
             default_index=default_index,
         )
 
+    # PPP 点击"对话"，调用dialogue_page(),点击"知识库管理"则调用knowledge_base_page()
+    # 传递大模型的api对象
     if selected_page in pages:
         pages[selected_page]["func"](api=api, is_lite=is_lite)
