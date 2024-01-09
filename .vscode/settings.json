@@ -1,7 +1,9 @@
 {
 	"workbench.colorTheme": "Default Dark Modern",
   "terminal.integrated.defaultProfile.windows": "Command Prompt",
-  "http.proxyStrictSSL": false,
-	"http.proxy": "http://127.0.0.1:7890",
-	"https.proxy": "http://127.0.0.1:7890"
+	"python.testing.pytestArgs": [
+		"tests"
+	],
+	"python.testing.unittestEnabled": false,
+	"python.testing.pytestEnabled": true
 }

@@ -15,33 +15,27 @@ api_base_url = api_address()
 
 def dump_input(d, title):
     print("\n")
-    print("=" * 30 + title + "  input " + "="*30)
+    print("=" * 30 + title + "  input " + "=" * 30)
     pprint(d)
 
 
 def dump_output(r, title):
     print("\n")
-    print("=" * 30 + title + "  output" + "="*30)
+    print("=" * 30 + title + "  output" + "=" * 30)
     for line in r.iter_content(None, decode_unicode=True):
         print(line, end="", flush=True)
 
 
 headers = {
-    'accept': 'application/json',
-    'Content-Type': 'application/json',
+    "accept": "application/json",
+    "Content-Type": "application/json",
 }
 
 data = {
     "query": "请用100字左右的文字介绍自己",
     "history": [
-        {
-            "role": "user",
-            "content": "你好"
-        },
-        {
-            "role": "assistant",
-            "content": "你好，我是人工智能大模型"
-        }
+        {"role": "user", "content": "你好"},
+        {"role": "assistant", "content": "你好，我是人工智能大模型"},
     ],
     "stream": True,
     "temperature": 0.7,
@@ -62,21 +56,17 @@ def test_knowledge_chat(api="/chat/knowledge_base_chat"):
         "query": "如何提问以获得高质量答案",
         "knowledge_base_name": "samples",
         "history": [
-            {
-                "role": "user",
-                "content": "你好"
-            },
-            {
-                "role": "assistant",
-                "content": "你好，我是 ChatGLM"
-            }
+            {"role": "user", "content": "你好"},
+            {"role": "assistant", "content": "你好，我是 ChatGLM"},
         ],
-        "stream": True
+        "stream": True,
     }
     dump_input(data, api)
+
+    # PPP### 流式传输：stream=True 参数用于在发出HTTP请求时以流（streaming）方式获取响应内容。这意味着当你设置 stream=True 时，requests不会一次性将服务器返回的响应体全部加载到内存中，而是逐步读取数据并将其保存到一个可迭代的对象中。
     response = requests.post(url, headers=headers, json=data, stream=True)
     print("\n")
-    print("=" * 30 + api + "  output" + "="*30)
+    print("=" * 30 + api + "  output" + "=" * 30)
     for line in response.iter_content(None, decode_unicode=True):
         data = json.loads(line[6:])
         if "answer" in data:
@@ -99,10 +89,12 @@ def test_search_engine_chat(api="/chat/search_engine_chat"):
         if se == "bing" and not BING_SUBSCRIPTION_KEY:
             data = response.json()
             assert data["code"] == 404
-            assert data["msg"] == f"要使用Bing搜索引擎，需要设置 `BING_SUBSCRIPTION_KEY`"
+            assert (
+                data["msg"] == f"要使用Bing搜索引擎，需要设置 `BING_SUBSCRIPTION_KEY`"
+            )
 
         print("\n")
-        print("=" * 30 + api + f" by {se}  output" + "="*30)
+        print("=" * 30 + api + f" by {se}  output" + "=" * 30)
         for line in response.iter_content(None, decode_unicode=True):
             data = json.loads(line[6:])
             if "answer" in data:
@@ -110,4 +102,3 @@ def test_search_engine_chat(api="/chat/search_engine_chat"):
         assert "docs" in data and len(data["docs"]) > 0
         pprint(data["docs"])
         assert response.status_code == 200
-

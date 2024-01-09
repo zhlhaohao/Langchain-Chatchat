@@ -1,5 +1,6 @@
 import sys
 from pathlib import Path
+
 root_path = Path(__file__).parent.parent
 sys.path.append(str(root_path))
 
@@ -22,7 +23,7 @@ print(f"all workers to test: {workers}")
 @pytest.mark.parametrize("worker", workers)
 def test_chat(worker):
     params = ApiChatParams(
-        messages = [
+        messages=[
             {"role": "user", "content": "你是谁"},
         ],
     )
@@ -38,7 +39,7 @@ def test_chat(worker):
 @pytest.mark.parametrize("worker", workers)
 def test_embeddings(worker):
     params = ApiEmbeddingsParams(
-        texts = [
+        texts=[
             "LangChain-Chatchat (原 Langchain-ChatGLM): 基于 Langchain 与 ChatGLM 等大语言模型的本地知识库问答应用实现。",
             "一种利用 langchain 思想实现的基于本地知识库的问答应用，目标期望建立一套对中文场景与开源模型支持友好、可离线运行的知识库问答解决方案。",
         ]
@@ -62,9 +63,12 @@ def test_embeddings(worker):
 # @pytest.mark.parametrize("worker", workers)
 # def test_completion(worker):
 #     params = ApiCompletionParams(prompt="五十六个民族")
-    
+
 #     print(f"\completion with {worker} \n")
 
 #     worker_class = get_model_worker_config(worker)["worker_class"]
 #     resp = worker_class().do_completion(params)
 #     pprint(resp)
+
+if __name__ == "__main__":
+    test_chat("qwen-api")
