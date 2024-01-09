@@ -8,6 +8,8 @@
 
 ```bash
 # 安装依赖,最好是python 3.10
+conda create -n py310-chat python=3.10
+
 conda install jq
 pip install -r requirements_lite.txt
 pip install -r requirements_api.txt

@@ -98,14 +98,14 @@ async def chat(
             chat_prompt = ChatPromptTemplate.from_messages(
                 [i.to_msg_template() for i in history] + [input_msg]
             )
-        elif conversation_id and history_len > 0:  # 若前端要求从数据库取历史消息
-            # 使用带有记忆功能的prompt模板
-            # 使用memory 时必须 prompt 必须含有memory.memory_key 对应的变量
+        elif (
+            conversation_id and history_len > 0
+        ):  # 若前端要求从数据库取历史消息（conversation_id）
+            # 找到带有历史信息的prompt模板（从prompt_config.py中配置）
             prompt = get_prompt_template("llm_chat", "with_history")
             chat_prompt = PromptTemplate.from_template(prompt)
 
-            # 创建内存对象，用于存储并提供对话历史给模型
-            # 根据conversation_id 获取message 列表进而拼凑 memory
+            # 创建记忆对象，从数据库提供conversation_id对话的历史消息给模型
             memory = ConversationBufferDBMemory(
                 conversation_id=conversation_id, llm=model, message_limit=history_len
             )

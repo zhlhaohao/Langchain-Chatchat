@@ -2,6 +2,10 @@ from server.db.session import with_session
 import uuid
 from server.db.models.conversation_model import ConversationModel
 
+""" 
+conversation_id的数据库记录新增
+ """
+
 
 @with_session
 def add_conversation_to_db(session, chat_type, name="", conversation_id=None):
