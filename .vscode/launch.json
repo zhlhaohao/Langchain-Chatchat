@@ -15,6 +15,18 @@
 			"cwd": "${workspaceFolder}",
       "justMyCode": false
     },
+    {
+      "name": "创建向量库",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/init_database.py",
+			"args": [
+				"--recreate-vs"
+			],      
+      "console": "integratedTerminal",
+			"cwd": "${workspaceFolder}",
+      "justMyCode": false
+    },
 		{
 			"name": "Python: Current File",
 			"type": "python",

@@ -66,7 +66,9 @@ KB_INFO = {
 # 通常情况下不需要更改以下内容
 
 # 知识库默认存储路径
-KB_ROOT_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "knowledge_base")
+KB_ROOT_PATH = os.path.join(
+    os.path.dirname(os.path.dirname(__file__)), "knowledge_base"
+)
 if not os.path.exists(KB_ROOT_PATH):
     os.mkdir(KB_ROOT_PATH)
 # 数据库默认存储路径。
@@ -76,8 +78,7 @@ SQLALCHEMY_DATABASE_URI = f"sqlite:///{DB_ROOT_PATH}"
 
 # 可选向量库类型及对应配置
 kbs_config = {
-    "faiss": {
-    },
+    "faiss": {},
     "milvus": {
         "host": "127.0.0.1",
         "port": "19530",
@@ -91,29 +92,31 @@ kbs_config = {
         "user": "",
         "password": "",
         "secure": True,
-        },
+    },
     "pg": {
         "connection_uri": "postgresql://postgres:postgres@127.0.0.1:5432/langchain_chatchat",
     },
-
     "es": {
         "host": "127.0.0.1",
         "port": "9200",
         "index_name": "test_index",
         "user": "",
-        "password": ""
+        "password": "",
     },
-    "milvus_kwargs":{
-        "search_params":{"metric_type": "L2"}, #在此处增加search_params
-        "index_params":{"metric_type": "L2","index_type": "HNSW"} # 在此处增加index_params
-    }
+    "milvus_kwargs": {
+        "search_params": {"metric_type": "L2"},  # 在此处增加search_params
+        "index_params": {
+            "metric_type": "L2",
+            "index_type": "HNSW",
+        },  # 在此处增加index_params
+    },
 }
 
 # TextSplitter配置项，如果你不明白其中的含义，就不要修改。
 text_splitter_dict = {
     "ChineseRecursiveTextSplitter": {
-        "source": "huggingface",   # 选择tiktoken则使用openai的方法
-        "tokenizer_name_or_path": "",
+        "source": "huggingface",  # 选择tiktoken则使用openai的方法
+        "tokenizer_name_or_path": "gpt2",  # PPP### 这里原来是空字串，是个坑，导致下载不了模型
     },
     "SpacyTextSplitter": {
         "source": "huggingface",
@@ -124,13 +127,12 @@ text_splitter_dict = {
         "tokenizer_name_or_path": "cl100k_base",
     },
     "MarkdownHeaderTextSplitter": {
-        "headers_to_split_on":
-            [
-                ("#", "head1"),
-                ("##", "head2"),
-                ("###", "head3"),
-                ("####", "head4"),
-            ]
+        "headers_to_split_on": [
+            ("#", "head1"),
+            ("##", "head2"),
+            ("###", "head3"),
+            ("####", "head4"),
+        ]
     },
 }
 
