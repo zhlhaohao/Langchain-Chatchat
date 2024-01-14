@@ -2,7 +2,11 @@ import os
 import shutil
 
 from configs import SCORE_THRESHOLD
-from server.knowledge_base.kb_service.base import KBService, SupportedVSType, EmbeddingsFunAdapter
+from server.knowledge_base.kb_service.base import (
+    KBService,
+    SupportedVSType,
+    EmbeddingsFunAdapter,
+)
 from server.knowledge_base.kb_cache.faiss_cache import kb_faiss_pool, ThreadSafeFaiss
 from server.knowledge_base.utils import KnowledgeFile, get_kb_path, get_vs_path
 from server.utils import torch_gc
@@ -14,7 +18,7 @@ class FaissKBService(KBService):
     vs_path: str
     kb_path: str
     vector_name: str = None
- 
+
     def vs_type(self) -> str:
         return SupportedVSType.FAISS
 
@@ -25,9 +29,11 @@ class FaissKBService(KBService):
         return get_kb_path(self.kb_name)
 
     def load_vector_store(self) -> ThreadSafeFaiss:
-        return kb_faiss_pool.load_vector_store(kb_name=self.kb_name,
-                                               vector_name=self.vector_name,
-                                               embed_model=self.embed_model)
+        return kb_faiss_pool.load_vector_store(
+            kb_name=self.kb_name,
+            vector_name=self.vector_name,
+            embed_model=self.embed_model,
+        )
 
     def save_vector_store(self):
         self.load_vector_store().save(self.vs_path)
@@ -57,38 +63,50 @@ class FaissKBService(KBService):
         except Exception:
             ...
 
-    def do_search(self,
-                  query: str,
-                  top_k: int,
-                  score_threshold: float = SCORE_THRESHOLD,
-                  ) -> List[Document]:
+    def do_search(
+        self,
+        query: str,
+        top_k: int,
+        score_threshold: float = SCORE_THRESHOLD,
+    ) -> List[Document]:
         embed_func = EmbeddingsFunAdapter(self.embed_model)
         embeddings = embed_func.embed_query(query)
         with self.load_vector_store().acquire() as vs:
-            docs = vs.similarity_search_with_score_by_vector(embeddings, k=top_k, score_threshold=score_threshold)
+            docs = vs.similarity_search_with_score_by_vector(
+                embeddings, k=top_k, score_threshold=score_threshold
+            )
         return docs
 
-    def do_add_doc(self,
-                   docs: List[Document],
-                   **kwargs,
-                   ) -> List[Dict]:
-        data = self._docs_to_embeddings(docs) # 将向量化单独出来可以减少向量库的锁定时间
+    # PPP# 把文档向量化，然后存储到向量存储库中
+    def do_add_doc(
+        self,
+        docs: List[Document],
+        **kwargs,
+    ) -> List[Dict]:
+        data = self._docs_to_embeddings(
+            docs
+        )  # PPP### 进行文档向量化，将向量化单独出来可以减少向量库的锁定时间
 
+        # 添加到向量库中
         with self.load_vector_store().acquire() as vs:
-            ids = vs.add_embeddings(text_embeddings=zip(data["texts"], data["embeddings"]),
-                                    metadatas=data["metadatas"],
-                                    ids=kwargs.get("ids"))
+            ids = vs.add_embeddings(
+                text_embeddings=zip(data["texts"], data["embeddings"]),
+                metadatas=data["metadatas"],
+                ids=kwargs.get("ids"),
+            )
             if not kwargs.get("not_refresh_vs_cache"):
                 vs.save_local(self.vs_path)
         doc_infos = [{"id": id, "metadata": doc.metadata} for id, doc in zip(ids, docs)]
         torch_gc()
         return doc_infos
 
-    def do_delete_doc(self,
-                      kb_file: KnowledgeFile,
-                      **kwargs):
+    def do_delete_doc(self, kb_file: KnowledgeFile, **kwargs):
         with self.load_vector_store().acquire() as vs:
-            ids = [k for k, v in vs.docstore._dict.items() if v.metadata.get("source").lower() == kb_file.filename.lower()]
+            ids = [
+                k
+                for k, v in vs.docstore._dict.items()
+                if v.metadata.get("source").lower() == kb_file.filename.lower()
+            ]
             if len(ids) > 0:
                 vs.delete(ids)
             if not kwargs.get("not_refresh_vs_cache"):
@@ -115,7 +133,7 @@ class FaissKBService(KBService):
             return False
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     faissService = FaissKBService("test")
     faissService.add_doc(KnowledgeFile("README.md", "test"))
     faissService.delete_doc(KnowledgeFile("README.md", "test"))

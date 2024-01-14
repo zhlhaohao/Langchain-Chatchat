@@ -5,8 +5,8 @@ import os
 # 如果模型目录名称和 MODEL_PATH 中的 key 或 value 相同，程序会自动检测加载，无需修改 MODEL_PATH 中的路径。
 MODEL_ROOT_PATH = ""
 
-# 选用的 Embedding 名称
-EMBEDDING_MODEL = "text2vec"
+# 选用的本地 Embedding 名称（用于知识库的创建）：bge-large-zh
+EMBEDDING_MODEL = "bge-large-zh"
 
 # Embedding 模型运行设备。设为"auto"会自动检测，也可手动设定为"cuda","mps","cpu"其中之一。
 EMBEDDING_DEVICE = "auto"
@@ -28,7 +28,7 @@ EMBEDDING_MODEL_OUTPUT_PATH = "output"
 
 # chatglm3-6b输出角色标签<|user|>及自问自答的问题详见项目wiki->常见问题->Q20.
 
-LLM_MODELS = ["qwen-api", "openai-api"]  # "Qwen-1_8B-Chat",
+LLM_MODELS = ["qwen-api"]  # "Qwen-1_8B-Chat",
 
 # AgentLM模型的名称 (可以不指定，指定之后就锁定进入Agent之后的Chain的模型，不指定就是LLM_MODELS[0])
 Agent_MODEL = None
@@ -125,11 +125,11 @@ ONLINE_LLM_MODEL = {
 # 在以下字典中修改属性值，以指定本地embedding模型存储位置。支持3种设置方法：
 # 1、将对应的值修改为模型绝对路径
 # 2、不修改此处的值（以 text2vec 为例）：
-#       2.1 如果{MODEL_ROOT_PATH}下存在如下任一子目录：
+#       2.1 如果{MODEL_ROOT_PATH}下存在如下任一子目录,则从该目录加载模型：
 #           - text2vec
 #           - GanymedeNil/text2vec-large-chinese
 #           - text2vec-large-chinese
-#       2.2 如果以上本地路径不存在，则使用huggingface模型
+#       2.2 如果以上本地路径不存在，则从huggingface下载模型并存放到huggingface的目录下
 MODEL_PATH = {
     "embed_model": {
         "ernie-tiny": "nghuyong/ernie-3.0-nano-zh",

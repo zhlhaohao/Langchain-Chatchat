@@ -34,7 +34,7 @@ from pprint import pprint
 set_httpx_config()
 
 
-# PPP# 后台的接口封装
+# PPP# 大模型对话的后台的接口封装
 class ApiRequest:
     """
     api.py调用的封装（同步模式）,简化api调用方式

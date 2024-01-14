@@ -45,6 +45,7 @@ def get_file_path(knowledge_base_name: str, doc_name: str):
     return os.path.join(get_doc_path(knowledge_base_name), doc_name)
 
 
+# 列出KB_ROOT_PATH下的所有子目录
 def list_kbs_from_folder():
     return [
         f
@@ -247,7 +248,7 @@ def make_text_splitter(
                     )
             elif (
                 text_splitter_dict[splitter_name]["source"] == "huggingface"
-            ):  ## 从huggingface加载
+            ):  ## 从huggingface加载 text splitter 实际上就是tokenizer
                 if text_splitter_dict[splitter_name]["tokenizer_name_or_path"] == "":
                     config = get_model_worker_config(llm_model)
                     text_splitter_dict[splitter_name][
@@ -293,6 +294,7 @@ def make_text_splitter(
     return text_splitter
 
 
+# PPP# 对磁盘的某个文件进行封装，用于加载、读取、转换为文字、切分
 class KnowledgeFile:
     def __init__(
         self,
@@ -316,6 +318,7 @@ class KnowledgeFile:
         self.document_loader_name = get_LoaderClass(self.ext)
         self.text_splitter_name = TEXT_SPLITTER_NAME
 
+    # PPP### 加载文件
     def file2docs(self, refresh: bool = False):
         if self.docs is None or refresh:
             logger.info(f"{self.document_loader_name} used for {self.filepath}")
@@ -324,9 +327,10 @@ class KnowledgeFile:
                 file_path=self.filepath,
                 loader_kwargs=self.loader_kwargs,
             )
-            self.docs = loader.load()
+            self.docs = loader.load()  # [Document]
         return self.docs
 
+    # PPP## 把文档进行切分，返回切分后的多个文档（注意这个时候还没有tokenizer）
     def docs2texts(
         self,
         docs: List[Document] = None,
@@ -336,6 +340,7 @@ class KnowledgeFile:
         chunk_overlap: int = OVERLAP_SIZE,
         text_splitter: TextSplitter = None,
     ):
+        """docs是输入，只包含一个Document,把这个Document切分成多个段落，形成多个切分后的Document，返回splited_docs数组"""
         docs = docs or self.file2docs(refresh=refresh)
         if not docs:
             return []
@@ -358,8 +363,9 @@ class KnowledgeFile:
         if zh_title_enhance:
             docs = func_zh_title_enhance(docs)
         self.splited_docs = docs
-        return self.splited_docs
+        return self.splited_docs  # [Document]
 
+    # PPP### 对文件加载、读取、转换为文字、切分
     def file2text(
         self,
         zh_title_enhance: bool = ZH_TITLE_ENHANCE,
