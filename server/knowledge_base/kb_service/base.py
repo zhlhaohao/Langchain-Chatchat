@@ -211,6 +211,7 @@ class KBService(ABC):
     def count_files(self):
         return count_files_from_db(self.kb_name)
 
+    # PPP# 根据用户输入，从知识库中查找最相关的top-k个知识库文件段落
     def search_docs(
         self,
         query: str,
@@ -383,6 +384,7 @@ class KBServiceFactory:
 
             return DefaultKBService(kb_name)
 
+    # PPP### 返回KBService知识库对象（根据名称如samples,向量库类型以及嵌入模型）
     @staticmethod
     def get_service_by_name(kb_name: str) -> KBService:
         _, vs_type, embed_model = load_kb_from_db(kb_name)

@@ -83,15 +83,16 @@ class FaissKBService(KBService):
         docs: List[Document],
         **kwargs,
     ) -> List[Dict]:
-        data = self._docs_to_embeddings(
-            docs
-        )  # PPP### 进行文档向量化，将向量化单独出来可以减少向量库的锁定时间
+        # PPP### 进行文档向量化，将向量化单独出来可以减少向量库的锁定时间
+        data = self._docs_to_embeddings(docs)
 
-        # 添加到向量库中
+        # 把文档添加到向量库中,底层调用的是 langchain_community.vectorstores.faiss
         with self.load_vector_store().acquire() as vs:
-            ids = vs.add_embeddings(
-                text_embeddings=zip(data["texts"], data["embeddings"]),
-                metadatas=data["metadatas"],
+            ids = vs.add_embeddings(  # C:\ProgramData\anaconda3\envs\py310-chat\Lib\site-packages\langchain_community\vectorstores\faiss.py
+                text_embeddings=zip(
+                    data["texts"], data["embeddings"]
+                ),  # 原始文本和向量
+                metadatas=data["metadatas"],  # 元数据，例如所在的文档名称
                 ids=kwargs.get("ids"),
             )
             if not kwargs.get("not_refresh_vs_cache"):

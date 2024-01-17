@@ -1,9 +1,32 @@
 {
 	"workbench.colorTheme": "Default Dark Modern",
+  "workbench.colorCustomizations": {
+		"tab.activeBackground": "#133c9a",
+		"activityBar.activeBackground": "#e8b847",
+		"activityBar.background": "#e8b847",
+		"activityBar.foreground": "#15202b",
+		"activityBar.inactiveForeground": "#15202b99",
+		"activityBarBadge.background": "#128e69",
+		"activityBarBadge.foreground": "#e7e7e7",
+		"commandCenter.border": "#15202b99",
+		"sash.hoverBorder": "#e8b847",
+		"statusBar.background": "#e0a61c",
+		"statusBar.foreground": "#15202b",
+		"statusBarItem.hoverBackground": "#b38416",
+		"statusBarItem.remoteBackground": "#e0a61c",
+		"statusBarItem.remoteForeground": "#15202b",
+		"titleBar.activeBackground": "#e0a61c",
+		"titleBar.activeForeground": "#15202b",
+		"titleBar.inactiveBackground": "#e0a61c99",
+		"titleBar.inactiveForeground": "#15202b99"
+	},
+
+
   "terminal.integrated.defaultProfile.windows": "Command Prompt",
 	"python.testing.pytestArgs": [
 		"tests"
 	],
 	"python.testing.unittestEnabled": false,
-	"python.testing.pytestEnabled": true
+	"python.testing.pytestEnabled": true,
+	"peacock.color": "#e0a61c",
 }
