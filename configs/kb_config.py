@@ -112,18 +112,18 @@ kbs_config = {
     },
 }
 
-# TextSplitter配置项，如果你不明白其中的含义，就不要修改。
+# 分段器TextSplitter配置项，如果你不明白其中的含义，就不要修改。
 text_splitter_dict = {
     "ChineseRecursiveTextSplitter": {
-        "source": "huggingface",  # 选择tiktoken则使用openai的方法
-        "tokenizer_name_or_path": "gpt2",  # PPP### 这里原来是空字串，是个坑，导致下载不了模型
+        "source": "huggingface",
+        "tokenizer_name_or_path": "hfl/chinese-roberta-wwm-ext-large",  # PPP### 这里原来是空字串，是个坑，导致下载不了模型
     },
     "SpacyTextSplitter": {
         "source": "huggingface",
         "tokenizer_name_or_path": "gpt2",
     },
     "RecursiveCharacterTextSplitter": {
-        "source": "tiktoken",
+        "source": "tiktoken",  # 选择tiktoken则使用openai的方法
         "tokenizer_name_or_path": "cl100k_base",
     },
     "MarkdownHeaderTextSplitter": {
@@ -136,7 +136,7 @@ text_splitter_dict = {
     },
 }
 
-# TEXT_SPLITTER 名称
+# 当前使用的分段器名称
 TEXT_SPLITTER_NAME = "ChineseRecursiveTextSplitter"
 
 # Embedding模型定制词语的词表文件

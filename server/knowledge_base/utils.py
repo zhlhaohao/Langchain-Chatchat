@@ -196,6 +196,7 @@ def get_loader(loader_name: str, file_path: str, loader_kwargs: Dict = None):
     return loader
 
 
+# PPP# 根据用户配置文件，创建文章分段器对象,但是Tokenzier并没有卵用，实际上是用chinese_recursive_text_splitter.py直接对中文字进行分段的
 def make_text_splitter(
     splitter_name: str = TEXT_SPLITTER_NAME,
     chunk_size: int = CHUNK_SIZE,
@@ -203,7 +204,7 @@ def make_text_splitter(
     llm_model: str = LLM_MODELS[0],
 ):
     """
-    根据参数获取特定的分词器
+    根据参数获取特定的分段器对象,如果不提供就采用默认的SpacyTextSplitter
     """
     splitter_name = splitter_name or "SpacyTextSplitter"
     try:
@@ -217,10 +218,10 @@ def make_text_splitter(
                 headers_to_split_on=headers_to_split_on
             )
         else:
-            try:  ## 优先使用用户自定义的text_splitter
+            try:  # 优先使用用户自定义的text_splitter(就是从项目根目录的text_splitter目录下的所有定义的类中寻找)
                 text_splitter_module = importlib.import_module("text_splitter")
                 TextSplitter = getattr(text_splitter_module, splitter_name)
-            except:  ## 否则使用langchain的text_splitter
+            except:  ## 如果用户没有自定义的text_splitter，就使用langchain的text_splitter
                 text_splitter_module = importlib.import_module(
                     "langchain.text_splitter"
                 )
@@ -228,7 +229,7 @@ def make_text_splitter(
 
             if (
                 text_splitter_dict[splitter_name]["source"] == "tiktoken"
-            ):  ## 从tiktoken加载
+            ):  ## 如果分段器是tiktoken提供的(tiktoken是OpenAI开源的Python第三方模块，该模块主要实现了tokenizer的BPE（Byte pair encoding）算法)
                 try:
                     text_splitter = TextSplitter.from_tiktoken_encoder(
                         encoding_name=text_splitter_dict[splitter_name][
@@ -238,7 +239,7 @@ def make_text_splitter(
                         chunk_size=chunk_size,
                         chunk_overlap=chunk_overlap,
                     )
-                except:
+                except:  # 如果没有安装tiktoken，就使用langchain的text_splitter
                     text_splitter = TextSplitter.from_tiktoken_encoder(
                         encoding_name=text_splitter_dict[splitter_name][
                             "tokenizer_name_or_path"
@@ -249,7 +250,9 @@ def make_text_splitter(
             elif (
                 text_splitter_dict[splitter_name]["source"] == "huggingface"
             ):  ## 从huggingface加载 text splitter 实际上就是tokenizer
-                if text_splitter_dict[splitter_name]["tokenizer_name_or_path"] == "":
+                if (
+                    text_splitter_dict[splitter_name]["tokenizer_name_or_path"] == ""
+                ):  # 如果tokenizer_name_or_path为空，则采用本地llm模型的model_path
                     config = get_model_worker_config(llm_model)
                     text_splitter_dict[splitter_name][
                         "tokenizer_name_or_path"
@@ -257,20 +260,22 @@ def make_text_splitter(
 
                 if (
                     text_splitter_dict[splitter_name]["tokenizer_name_or_path"]
-                    == "gpt2"
+                    == "gpt2"  # 如果是gpt2的tokenizer
                 ):
                     from transformers import GPT2TokenizerFast
                     from langchain.text_splitter import CharacterTextSplitter
 
-                    tokenizer = GPT2TokenizerFast.from_pretrained("gpt2")
-                else:  ## 字符长度加载
+                    tokenizer = GPT2TokenizerFast.from_pretrained(
+                        "gpt2"
+                    )  # 从huggingface加载gpt2的tokenizer
+                else:  # 如果是其他tokenizer,那么从huggingface加载
                     from transformers import AutoTokenizer
 
                     tokenizer = AutoTokenizer.from_pretrained(
                         text_splitter_dict[splitter_name]["tokenizer_name_or_path"],
                         trust_remote_code=True,
                     )
-                text_splitter = TextSplitter.from_huggingface_tokenizer(
+                text_splitter = TextSplitter.from_huggingface_tokenizer(  # 给出tokenizer对象,创建text_splitter对象
                     tokenizer=tokenizer,
                     chunk_size=chunk_size,
                     chunk_overlap=chunk_overlap,
