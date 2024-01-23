@@ -33,7 +33,7 @@ LLM_MODELS = ["qwen-api"]  # "Qwen-1_8B-Chat",
 # AgentLM模型的名称 (可以不指定，指定之后就锁定进入Agent之后的Chain的模型，不指定就是LLM_MODELS[0])
 Agent_MODEL = None
 
-# LLM 运行设备。设为"auto"会自动检测，也可手动设定为"cuda","mps","cpu"其中之一。
+# PPP## 指定LLM大模型的推理设备例如cuda。设为"auto"会自动检测，也可手动设定为"cuda","mps","cpu"其中之一。
 LLM_DEVICE = "auto"
 
 # 历史对话轮数
@@ -46,6 +46,7 @@ MAX_TOKENS = None
 TEMPERATURE = 0.7
 # TOP_P = 0.95 # ChatOpenAI暂不支持该参数
 
+# 在线LLM模型列表
 ONLINE_LLM_MODEL = {
     # 线上模型。请在server_config中为每个在线API设置不同的端口
     "openai-api": {
@@ -131,6 +132,7 @@ ONLINE_LLM_MODEL = {
 #           - text2vec-large-chinese
 #       2.2 如果以上本地路径不存在，则从huggingface下载模型并存放到huggingface的目录下
 MODEL_PATH = {
+    # 文本嵌入模型列表
     "embed_model": {
         "ernie-tiny": "nghuyong/ernie-3.0-nano-zh",
         "ernie-base": "nghuyong/ernie-3.0-base-zh",
@@ -154,6 +156,7 @@ MODEL_PATH = {
         "nlp_gte_sentence-embedding_chinese-large": "damo/nlp_gte_sentence-embedding_chinese-large",
         "text-embedding-ada-002": "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",
     },
+    # 本地LLM模型列表
     "llm_model": {
         # 以下部分模型并未完全测试，仅根据fastchat和vllm模型的模型列表推定支持
         "chatglm2-6b": "THUDM/chatglm2-6b",

@@ -9,22 +9,29 @@ logger = logging.getLogger(__name__)
 def _split_text_with_regex_from_end(
     text: str, separator: str, keep_separator: bool
 ) -> List[str]:
-    # Now that we have the separator, split the text
+    # 现在我们有了分隔符，将文本进行拆分
     if separator:
         if keep_separator:
-            # The parentheses in the pattern keep the delimiters in the result.
+            # 正则表达式中的括号使得结果中保留了分隔符
             _splits = re.split(f"({separator})", text)
+            # 将相邻的两个拆分结果进行拼接
             splits = ["".join(i) for i in zip(_splits[0::2], _splits[1::2])]
+
+            # 如果拆分结果的数量为奇数，将最后一个分隔符单独取出来
             if len(_splits) % 2 == 1:
                 splits += _splits[-1:]
             # splits = [_splits[0]] + splits
         else:
+            # 使用分隔符进行拆分
             splits = re.split(separator, text)
     else:
+        # 如果没有分隔符，将文本转换为列表
         splits = list(text)
+    # 过滤掉结果中的空字符串
     return [s for s in splits if s != ""]
 
 
+# PPP# 中文文本递归分段器
 class ChineseRecursiveTextSplitter(RecursiveCharacterTextSplitter):
     def __init__(
         self,
@@ -53,43 +60,69 @@ class ChineseRecursiveTextSplitter(RecursiveCharacterTextSplitter):
         self._is_separator_regex = is_separator_regex
 
     def _split_text(self, text: str, separators: List[str]) -> List[str]:
-        """Split incoming text and return chunks."""
-        final_chunks = []
-        # Get appropriate separator to use
+        """
+        将传入的文本分割成块并返回。
+
+        参数：
+        - text (str): 要处理的文本
+        - separators (List[str]): 分隔符列表
+
+        过程：
+        1. 从分隔符列表中从前向后选择分隔符，使用从尾部开始的正则表达式对文本进行分割
+        4. 遍历分割后的文本片段，将长度小于chunk_size的片段添加到_good_splits中，将_good_splits中的短片段拼接成一个稍稍大于chunk_size的长文本块，然后添加到final_chunks中
+        5. 对于长度大于chunk_size的片段，使用新的分隔符列表递归地分割长片段直到小于chunk_size,这段长文本中间确实没有分隔符，那只好不分割了，直接加入到final_chunks中
+        7. 返回去除多余换行并过滤掉空白内容的final_chunks中的所有文本片段
+        """
+
+        final_chunks = []  # 存储最终分割出的文本块
+
+        # 获取合适的分隔符，优先选择最后一个在text中出现过的分隔符
         separator = separators[-1]
         new_separators = []
         for i, _s in enumerate(separators):
-            _separator = _s if self._is_separator_regex else re.escape(_s)
+            escaped_s = _s if self._is_separator_regex else re.escape(_s)
             if _s == "":
                 separator = _s
                 break
-            if re.search(_separator, text):
+            if re.search(escaped_s, text):
                 separator = _s
                 new_separators = separators[i + 1 :]
                 break
 
+        # 如果分隔符不是正则表达式，则对其进行转义
         _separator = separator if self._is_separator_regex else re.escape(separator)
+
+        # 从文本尾部开始，根据分隔符进行正则分割
         splits = _split_text_with_regex_from_end(text, _separator, self._keep_separator)
 
-        # Now go merging things, recursively splitting longer texts.
+        # 合并过短的文本片段
         _good_splits = []
-        _separator = "" if self._keep_separator else separator
+        effective_separator = "" if self._keep_separator else separator
         for s in splits:
-            if self._length_function(s) < self._chunk_size:
+            if (
+                self._length_function(s) < self._chunk_size
+            ):  # 如果长度小于chunk_size，那么将其添加到_good_splits中
                 _good_splits.append(s)
             else:
+                # 若_good_splits已有内容，那么先合并并添加到final_chunks，然后清空
                 if _good_splits:
-                    merged_text = self._merge_splits(_good_splits, _separator)
+                    merged_text = self._merge_splits(_good_splits, effective_separator)
                     final_chunks.extend(merged_text)
                     _good_splits = []
+
                 if not new_separators:
                     final_chunks.append(s)
                 else:
+                    # 如果当前片段大于chunk_size，且还有分隔符可以尝试，则对当前长片段进行递归分割
                     other_info = self._split_text(s, new_separators)
                     final_chunks.extend(other_info)
+
+        # 处理最后剩下的_good_splits
         if _good_splits:
-            merged_text = self._merge_splits(_good_splits, _separator)
+            merged_text = self._merge_splits(_good_splits, effective_separator)
             final_chunks.extend(merged_text)
+
+        # 清理并返回结果：去除连续多余的换行并将空白内容过滤掉
         return [
             re.sub(r"\n{2,}", "\n", chunk.strip())
             for chunk in final_chunks

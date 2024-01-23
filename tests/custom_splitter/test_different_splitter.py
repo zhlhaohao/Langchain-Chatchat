@@ -3,17 +3,29 @@ import os
 from transformers import AutoTokenizer
 import sys
 
-sys.path.append("C:\\Users\\lianghao\\github\\Langchain-Chatchat")
-from configs.kb_config import CHUNK_SIZE, OVERLAP_SIZE
+file_path = os.path.abspath(__file__)
+workspace_path = os.path.sep.join(file_path.split(os.path.sep)[:-3])
+sys.path.append(workspace_path)
 
+from configs.kb_config import CHUNK_SIZE, OVERLAP_SIZE
 from server.knowledge_base.utils import make_text_splitter
 
 
+# P# 测试各种文本分段器的效果
 def text(splitter_name):
     from langchain import document_loaders
 
     # 使用DocumentLoader读取文件
-    filepath = "C:\\Users\\lianghao\\github\\Langchain-Chatchat\\knowledge_base\\samples\\content\\test.txt"  # "..\..\knowledge_base\samples\content\test.txt"
+    filepath = os.path.sep.join(
+        [
+            workspace_path,
+            "knowledge_base",
+            "samples",
+            "content",
+            "llm",
+            "中国联通安全知识题库.md",
+        ]
+    )
     loader = document_loaders.UnstructuredFileLoader(filepath, autodetect_encoding=True)
     docs = loader.load()
     text_splitter = make_text_splitter(splitter_name, CHUNK_SIZE, OVERLAP_SIZE)

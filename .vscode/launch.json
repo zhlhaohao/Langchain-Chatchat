@@ -16,6 +16,20 @@
       "justMyCode": false
     },
     {
+      "name": "运行本地模型",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/startup.py",
+			"args": [
+        "--model-worker",
+        "--model-name",
+        "Qwen-1_8B-Chat-Int4"
+			],      
+      "console": "integratedTerminal",
+			"cwd": "${workspaceFolder}",
+      "justMyCode": false
+    },
+    {
       "name": "创建向量库",
       "type": "python",
       "request": "launch",

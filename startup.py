@@ -71,6 +71,7 @@ def create_controller_app(
     return app
 
 
+# PPP### 启动本地LLM模型
 def create_model_worker_app(log_level: str = "INFO", **kwargs) -> FastAPI:
     """
     kwargs包含的字段如下：
@@ -81,12 +82,14 @@ def create_model_worker_app(log_level: str = "INFO", **kwargs) -> FastAPI:
     worker_address:
 
     对于Langchain支持的模型：
-        langchain_model:True
-        不会使用fschat
-    对于online_api:
+        langchain_model:True  --- 实际上配置中根本没有
+        不会使用fastchat
+
+    对于online_api:   --- 在线大模型使用 online_api
         online_api:True
         worker_class: `provider`
-    对于离线模型：
+
+    对于本地模型：
         model_path: `model_name_or_path`,huggingface的repo-id或本地路径
         device:`LLM_DEVICE`
     """
@@ -119,6 +122,7 @@ def create_model_worker_app(log_level: str = "INFO", **kwargs) -> FastAPI:
     else:
         from configs.model_config import VLLM_MODEL_DICT
 
+        # 如果使用vllm推理加速框架
         if kwargs["model_names"][0] in VLLM_MODEL_DICT and args.infer_turbo == "vllm":
             import fastchat.serve.vllm_worker
             from fastchat.serve.vllm_worker import VLLMWorker, app, worker_id
@@ -185,7 +189,7 @@ def create_model_worker_app(log_level: str = "INFO", **kwargs) -> FastAPI:
             sys.modules["fastchat.serve.vllm_worker"].engine = engine
             sys.modules["fastchat.serve.vllm_worker"].worker = worker
             sys.modules["fastchat.serve.vllm_worker"].logger.setLevel(log_level)
-
+        # 如果不使用VLLM
         else:
             from fastchat.serve.model_worker import (
                 app,
@@ -393,6 +397,7 @@ def run_controller(log_level: str = "INFO", started_event: mp.Event = None):
     uvicorn.run(app, host=host, port=port, log_level=log_level.lower())
 
 
+# PPP## 启动本地LLM模型
 def run_model_worker(
     model_name: str = LLM_MODELS[0],
     controller_address: str = "",
@@ -525,6 +530,8 @@ def run_webui(started_event: mp.Event = None, run_mode: str = None):
 
 def parse_args() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser()
+
+    # 全套
     parser.add_argument(
         "-a",
         "--all-webui",
@@ -532,18 +539,24 @@ def parse_args() -> argparse.ArgumentParser:
         help="run fastchat's controller/openai_api/model_worker servers, run api.py and webui.py",
         dest="all_webui",
     )
+
+    # 加载全套后台，不运行webui
     parser.add_argument(
         "--all-api",
         action="store_true",
         help="run fastchat's controller/openai_api/model_worker servers, run api.py",
         dest="all_api",
     )
+
+    # 加载本地模型后台
     parser.add_argument(
         "--llm-api",
         action="store_true",
         help="run fastchat's controller/openai_api/model_worker servers",
         dest="llm_api",
     )
+
+    # fastchat后台，不加载本地模型，
     parser.add_argument(
         "-o",
         "--openai-api",
@@ -551,6 +564,8 @@ def parse_args() -> argparse.ArgumentParser:
         help="run fastchat's controller/openai_api servers",
         dest="openai_api",
     )
+
+    # 加载--model-name指定名字的模型
     parser.add_argument(
         "-m",
         "--model-worker",
@@ -559,6 +574,8 @@ def parse_args() -> argparse.ArgumentParser:
         "specify --model-name if not using default LLM_MODELS",
         dest="model_worker",
     )
+
+    # 指定加载的模型名字
     parser.add_argument(
         "-n",
         "--model-name",
@@ -569,6 +586,8 @@ def parse_args() -> argparse.ArgumentParser:
         "add addition names with space seperated to start multiple model workers.",
         dest="model_name",
     )
+
+    # 指定fastchat controller的监听地址端口
     parser.add_argument(
         "-c",
         "--controller",
@@ -576,12 +595,16 @@ def parse_args() -> argparse.ArgumentParser:
         help="specify controller address the worker is registered to. default is FSCHAT_CONTROLLER",
         dest="controller_address",
     )
+
+    # 运行在线llm的API服务监听
     parser.add_argument(
         "--api",
         action="store_true",
         help="run api.py server",
         dest="api",
     )
+
+    # 运行在线llm的api服务监听-可以指定名字
     parser.add_argument(
         "-p",
         "--api-worker",
@@ -589,6 +612,8 @@ def parse_args() -> argparse.ArgumentParser:
         help="run online model api such as zhipuai",
         dest="api_worker",
     )
+
+    # 运行网站UI
     parser.add_argument(
         "-w",
         "--webui",
@@ -596,6 +621,8 @@ def parse_args() -> argparse.ArgumentParser:
         help="run webui.py server",
         dest="webui",
     )
+
+    # 减少fastchat服务log信息
     parser.add_argument(
         "-q",
         "--quiet",
@@ -603,6 +630,8 @@ def parse_args() -> argparse.ArgumentParser:
         help="减少fastchat服务log信息",
         dest="quiet",
     )
+
+    # 以Lite模式运行：仅支持在线API的LLM对话、搜索引擎对话
     parser.add_argument(
         "-i",
         "--lite",
@@ -746,26 +775,31 @@ async def start_main_server():
         )
         processes["openai_api"] = process
 
-    model_worker_started = []
-    if args.model_worker:
-        for model_name in args.model_name:
-            config = get_model_worker_config(model_name)
-            if not config.get("online_api"):
-                e = manager.Event()
-                model_worker_started.append(e)
-                process = Process(
-                    target=run_model_worker,
-                    name=f"model_worker - {model_name}",
-                    kwargs=dict(
-                        model_name=model_name,
-                        controller_address=args.controller_address,
-                        log_level=log_level,
-                        q=queue,
-                        started_event=e,
+    # 加载本地llm模型
+    model_worker_started = []  # 用于存储已启动的模型工作器的事件对象
+    if args.model_worker:  # 判断是否需要启动模型工作器
+        for model_name in args.model_name:  # 遍历模型名称列表
+            config = get_model_worker_config(model_name)  # 获取模型工作器的配置信息
+            if not config.get("online_api"):  # 判断配置信息中是否包含"online_api"字段
+                e = manager.Event()  # 创建一个事件对象
+                model_worker_started.append(
+                    e
+                )  # 将事件对象添加到已启动的模型工作器列表中
+                process = Process(  # 创建一个新的进程
+                    target=run_model_worker,  # 设置进程的目标函数为run_model_worker
+                    name=f"model_worker - {model_name}",  # 设置进程的名称
+                    kwargs=dict(  # 设置进程的参数字典
+                        model_name=model_name,  # 模型名称
+                        controller_address=args.controller_address,  # 控制器地址
+                        log_level=log_level,  # 日志级别
+                        q=queue,  # 队列对象
+                        started_event=e,  # 已启动的模型工作器的事件对象
                     ),
-                    daemon=True,
+                    daemon=True,  # 设置为守护线程，后台运行
                 )
-                processes["model_worker"][model_name] = process
+                processes["model_worker"][
+                    model_name
+                ] = process  # 将进程对象添加到进程字典中
 
     if args.api_worker:
         for model_name in args.model_name:  # PPP## 子进程方式启动本地大模型
