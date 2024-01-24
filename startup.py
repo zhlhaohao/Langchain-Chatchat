@@ -826,7 +826,7 @@ async def start_main_server():
                 processes["online_api"][model_name] = process
 
     api_started = manager.Event()
-    if not args.api:  # PPP## （临时关闭api服务用于调试）子进程方式启动服务端的api
+    if args.api:  # PPP## （临时关闭api服务用于调试）子进程方式启动服务端的api
         process = Process(
             target=run_api_server,
             name=f"API Server",

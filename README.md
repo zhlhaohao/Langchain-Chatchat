@@ -25,6 +25,14 @@ http://127.0.0.1:8501
 
 
 
+```bash
+git lfs install
+git clone https://huggingface.co/Qwen/Qwen-1_8B-Chat-Int4
+```
+
+
+
+
 🌍 [READ THIS IN ENGLISH](README_en.md)
 
 📃 **LangChain-Chatchat** (原 Langchain-ChatGLM)

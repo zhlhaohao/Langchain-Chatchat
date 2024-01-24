@@ -21,7 +21,7 @@
       "request": "launch",
       "program": "${workspaceFolder}/startup.py",
 			"args": [
-        "--model-worker",
+        "--all-webui",
         "--model-name",
         "Qwen-1_8B-Chat-Int4"
 			],      
