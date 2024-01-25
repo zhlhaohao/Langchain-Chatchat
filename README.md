@@ -33,6 +33,81 @@ git clone https://huggingface.co/Qwen/Qwen-1_8B-Chat-Int4
 
 
 
+
+趋动云安装镜像命令
+
+
+```bash
+RUN pip install torch~=2.1.2
+RUN pip install torchvision~=0.16.2
+RUN pip install torchaudio~=2.1.2
+RUN pip install xformers==0.0.23.post1
+RUN pip install transformers==4.36.2
+RUN pip install sentence_transformers==2.2.2
+RUN pip install langchain==0.0.352
+RUN pip install langchain-experimental==0.0.47
+RUN pip install pydantic==1.10.13
+RUN pip install fschat==0.2.34
+RUN pip install openai~=1.6.0
+RUN pip install fastapi>=0.105
+RUN pip install sse_starlette
+RUN pip install nltk>=3.8.1
+RUN pip install uvicorn>=0.24.0.post1
+RUN pip install starlette~=0.27.0
+RUN pip install unstructured[all-docs]==0.11.0
+RUN pip install SQLAlchemy==2.0.19
+RUN pip install faiss-cpu~=1.7.4
+RUN pip install accelerate==0.24.1
+RUN pip install spacy~=3.7.2
+RUN pip install PyMuPDF~=1.23.8
+RUN pip install rapidocr_onnxruntime==1.3.8
+RUN pip install requests>=2.31.0
+RUN pip install pathlib>=1.0.1
+RUN pip install pytest>=7.4.3
+RUN pip install numexpr>=2.8.6
+RUN pip install strsimpy>=0.2.1
+RUN pip install markdownify>=0.11.6
+RUN pip install tiktoken~=0.5.2
+RUN pip install tqdm>=4.66.1
+RUN pip install websockets>=12.0
+RUN pip install numpy~=1.24.4
+RUN pip install pandas~=2.0.3
+RUN pip install einops>=0.7.0
+RUN pip install transformers_stream_generator==0.0.4
+RUN pip install vllm==0.2.6; sys_platform == "linux"
+RUN pip install httpx[brotli,http2,socks]==0.25.2
+RUN pip install llama-index
+RUN pip install jq>=1.6.0
+RUN pip install beautifulsoup4~=4.12.2 # for .mhtml files
+RUN pip install pysrt~=1.1.2
+RUN pip install zhipuai>=1.0.7, <=2.0.0 # zhipu
+RUN pip install dashscope>=1.13.6 # qwen
+RUN pip install arxiv>=2.0.0
+RUN pip install youtube-search>=2.1.2
+RUN pip install duckduckgo-search>=3.9.9
+RUN pip install metaphor-python>=0.1.23
+RUN pip install streamlit~=1.29.0
+RUN pip install streamlit-option-menu>=0.3.6
+RUN pip install streamlit-chatbox==1.1.11
+RUN pip install streamlit-modal>=0.1.0
+RUN pip install streamlit-aggrid>=0.3.4.post3
+RUN pip install watchdog>=3.0.0
+
+RUN pip install scipy
+RUN pip install peft
+RUN pip install deepspeed
+RUN pip install auto-gptq
+RUN pip install optimum
+
+```
+
+
+
+
+
+
+
+
 🌍 [READ THIS IN ENGLISH](README_en.md)
 
 📃 **LangChain-Chatchat** (原 Langchain-ChatGLM)
